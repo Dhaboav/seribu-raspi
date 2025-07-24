@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Virtual environment (if using in-project venv)
+.env
+.venv
+
+# Virtual environment (if using global venv)
+venv/
+ENV/
+env/
+
+# Logs files
+*.log
+
+# Python egg and build artifacts
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
