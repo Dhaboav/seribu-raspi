@@ -13,7 +13,6 @@ def main() -> None:
 
     url = os.getenv("API_URL")
     api_key = os.getenv("API_KEY")
-    camera_index = int(os.getenv("CAMERA_INDEX", 0))
     interval = int(os.getenv("INTERVAL", 60))
 
     if not url:
@@ -21,7 +20,7 @@ def main() -> None:
         raise ValueError("API_URL is not set in the environment variables.")
 
     sender = SendRequest(url, api_key)
-    take_image = TakeImage(sender, interval, camera_index)
+    take_image = TakeImage(sender, interval)
     take_image.run()
 
 

@@ -4,28 +4,33 @@ import time
 from typing import Dict
 
 import cv2
+from picamera2 import Picamera2
 
 from .logger import logger
 from .send_request import SendRequest
 
 
 class TakeImage:
-    """Capture images periodically from a camera and send to a server."""
+    """Capture images periodically from a Pi Camera and send to a server."""
 
-    def __init__(
-        self, request_sender: SendRequest, interval: int = 60, camera_index: int = 0
-    ) -> None:
+    def __init__(self, request_sender: SendRequest, interval: int = 60) -> None:
         """
-        Initialize with a SendRequest instance, capture interval, and camera index.
+        Initialize with a SendRequest instance and capture interval.
 
         Args:
             request_sender (SendRequest): Instance to handle HTTP requests.
             interval (int): Time between captures in seconds.
-            camera_index (int): Camera device index.
         """
         self.sender = request_sender
         self.interval = interval
-        self.capture = cv2.VideoCapture(camera_index)
+
+        self.picam2 = Picamera2()
+        config = self.picam2.create_still_configuration(
+            main={"format": "RGB888", "size": (640, 480)}
+        )
+        self.picam2.configure(config)
+        self.picam2.start()
+        time.sleep(1)  # Optional: let camera settle
 
     def _generate_payload(self) -> Dict[str, str]:
         """Generate random payload data for each image."""
@@ -38,10 +43,7 @@ class TakeImage:
 
     def take_and_send(self) -> None:
         """Capture an image, encode it, send with metadata, and log results."""
-        ret, frame = self.capture.read()
-        if not ret:
-            logger.error("Failed to capture image.")
-            return
+        frame = self.picam2.capture_array()
 
         success, encoded_image = cv2.imencode(".jpg", frame)
         if not success:
@@ -71,5 +73,5 @@ class TakeImage:
         except KeyboardInterrupt:
             logger.info("Stopping image capture.")
         finally:
-            self.capture.release()
-            logger.info("Camera released.")
+            self.picam2.stop()
+            logger.info("Camera stopped.")
