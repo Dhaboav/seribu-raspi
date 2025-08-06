@@ -19,3 +19,6 @@ env/
 dist/
 build/
 pip-wheel-metadata/
+
+# Project
+images/
